@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.4.0
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: nbrichet@proton.me
+author_name: Nicolas Brichet
+has_binder: true
+has_settings: true
+kind: frontend
+labextension_name: jupyter-webrtc-chat
+project_short_description: A JupyterLab extension providing a chat over webRTC.
+python_name: jupyter_webrtc_chat
+repository: https://github.com/brichet/jupyter-webRTC-chat
+test: true
+
