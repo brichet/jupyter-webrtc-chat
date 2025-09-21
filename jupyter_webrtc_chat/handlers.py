@@ -7,6 +7,10 @@ from tornado.websocket import WebSocketHandler
 class RouteHandler(WebSocketHandler, JupyterHandler):
     _users = {}
 
+    def check_origin(self, origin):
+        # Allow every origins
+        return True
+
     def initialize(self):
         self.username = ''
 
