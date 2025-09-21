@@ -1,26 +1,34 @@
-import { AbstractChatModel, IChatMessage, IChatModel, INewMessage } from '@jupyter/chat';
-import { WebRTCConnections } from './webRTCConnections';
+import {
+  AbstractChatModel,
+  IChatMessage,
+  IChatModel,
+  INewMessage
+} from '@jupyter/chat';
 import { User } from '@jupyterlab/services';
 import { UUID } from '@lumino/coreutils';
+
+import { IWebRTCConnections } from './tokens';
+import { WebRTCConnections } from './webRTCConnections';
 
 export class ChatModel extends AbstractChatModel {
   constructor(options: ChatModel.IOption) {
     super(options);
     this._user = options.user;
     this._rtcConnection.login(this._user.username);
-    this._rtcConnection.setReceivedMessage((message: IChatMessage) => {
+
+    this._rtcConnection.onMessageReceived = (message: IChatMessage) => {
       this.messageAdded(message);
-    });
+    };
   }
 
   sendMessage(message: INewMessage): Promise<boolean | void> | boolean | void {
     const chatMessage: IChatMessage = {
-        id: message.id ?? UUID.uuid4(),
-        type: 'msg',
-        body: message.body,
-        sender: this._user,
-        time: Date.now() / 1000
-      }
+      id: message.id ?? UUID.uuid4(),
+      type: 'msg',
+      body: message.body,
+      sender: this._user,
+      time: Date.now() / 1000
+    };
     this.messageAdded(chatMessage);
     this._rtcConnection.sendMessage(chatMessage);
   }

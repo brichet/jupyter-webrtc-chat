@@ -5,9 +5,10 @@ import { IChatMessage } from '@jupyter/chat';
 import { Token } from '@lumino/coreutils';
 
 export interface IWebRTCConnections {
+  login(name: string): void;
   handleConnection(name: string): boolean;
   sendMessage(message: IChatMessage): boolean[];
-  setReceivedMessage(fct: (message: IChatMessage) => void): void;
+  onMessageReceived: (message: IChatMessage) => void;
   readonly peers: Map<string, IPeer>;
 }
 

@@ -7,7 +7,7 @@ import { PromiseDelegate, UUID } from '@lumino/coreutils';
 import { IPeer, IWebRTCConnections } from './tokens';
 import { IChatMessage } from '@jupyter/chat';
 
-const WEB_SOCKET_URL = 'webrtc_chat';
+const SIGNALING_URL = 'webrtc_chat';
 
 const iceConfiguration = {
   iceServers: [{ urls: 'stun:stun.1.google.com:19302' }]
@@ -15,10 +15,8 @@ const iceConfiguration = {
 
 export class WebRTCConnections implements IWebRTCConnections {
   constructor() {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    this._receivedMessage = (message: IChatMessage) => {};
     const server = ServerConnection.makeSettings();
-    const url = URLExt.join(server.wsUrl, WEB_SOCKET_URL);
+    const url = URLExt.join(server.wsUrl, SIGNALING_URL);
     this._websocket = new WebSocket(url);
     // this._websocket = io(url, { path: '/connections' });
     // this._websocket.onAny(event => {
@@ -27,7 +25,7 @@ export class WebRTCConnections implements IWebRTCConnections {
     this._websocket.onopen = () => {
       console.log("It's ready");
       this._ready.resolve();
-    }
+    };
 
     this._websocket.onmessage = (message: MessageEvent) => {
       const data = JSON.parse(message.data);
@@ -40,6 +38,7 @@ export class WebRTCConnections implements IWebRTCConnections {
                 this._addConnection(user, true);
               }
             });
+            break;
           case 'offer':
             this.onOffer(data);
             break;
@@ -58,9 +57,10 @@ export class WebRTCConnections implements IWebRTCConnections {
     return this._peers;
   }
 
-  setReceivedMessage(fct: (message: IChatMessage) => void): void {
-    this._receivedMessage = fct;
-  }
+  onMessageReceived = (message: IChatMessage): void => {
+    // No-op by default
+    // It should be overwritten by the consumer
+  };
 
   login(name: string) {
     this._name = name;
@@ -165,7 +165,7 @@ export class WebRTCConnections implements IWebRTCConnections {
     channel.onmessage = event => {
       console.log('received message', event);
       console.log('PEERS', this._peers);
-      this._receivedMessage(JSON.parse(event.data));
+      this.onMessageReceived(JSON.parse(event.data));
     };
     channel.onclose = event => {
       this._peers.delete(name);
@@ -183,6 +183,5 @@ export class WebRTCConnections implements IWebRTCConnections {
   private _name: string = '';
   private _peers = new Map<string, IPeer>();
   private _websocket: WebSocket;
-  private _receivedMessage: (message: IChatMessage) => void;
   private _ready = new PromiseDelegate<void>();
 }
