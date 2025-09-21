@@ -1,11 +1,9 @@
-// Copyright (c) Jupyter Development Team.
-// Distributed under the terms of the Modified BSD License.
-
+import { IChatMessage } from '@jupyter/chat';
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 import { PromiseDelegate, UUID } from '@lumino/coreutils';
+import { ISignal, Signal } from '@lumino/signaling';
 import { IPeer, IWebRTCConnections } from './tokens';
-import { IChatMessage } from '@jupyter/chat';
 
 const SIGNALING_URL = 'webrtc_chat';
 
@@ -14,19 +12,47 @@ const iceConfiguration = {
 };
 
 export class WebRTCConnections implements IWebRTCConnections {
-  constructor() {
-    const server = ServerConnection.makeSettings();
-    const url = URLExt.join(server.wsUrl, SIGNALING_URL);
-    this._websocket = new WebSocket(url);
-    // this._websocket = io(url, { path: '/connections' });
-    // this._websocket.onAny(event => {
-    //   console.log('EVENT', event);
-    // })
+  constructor(options?: WebRTCConnections.IOptions) {
+    let serverUrl: string;
+    if (options?.signalingURL) {
+      serverUrl = options.signalingURL;
+    } else {
+      const server = ServerConnection.makeSettings();
+      serverUrl = URLExt.join(server.wsUrl, SIGNALING_URL);
+    }
+
+    this._websocket = new WebSocket(serverUrl);
+    this._initWebSocket();
+  }
+
+  get serverUrl(): string {
+    return this._websocket.url;
+  }
+  set serverUrl(value: string) {
+    this._websocket.close();
+    this._ready = new PromiseDelegate<void>();
+    this._websocket = new WebSocket(value);
+
+    this._initWebSocket();
+    this._serverChanged.emit();
+  }
+
+  get peers(): Map<string, IPeer> {
+    return this._peers;
+  }
+
+  get serverChanged(): ISignal<IWebRTCConnections, void> {
+    return this._serverChanged;
+  }
+
+  private _initWebSocket(): void {
+    // Set the connection ready when the signaling server connection is opened.
     this._websocket.onopen = () => {
       console.log("It's ready");
       this._ready.resolve();
     };
 
+    // Listen to the messages received from the signaling server.
     this._websocket.onmessage = (message: MessageEvent) => {
       const data = JSON.parse(message.data);
       console.debug('ONMESSAGE', data);
@@ -51,10 +77,6 @@ export class WebRTCConnections implements IWebRTCConnections {
         }
       }
     };
-  }
-
-  get peers(): Map<string, IPeer> {
-    return this._peers;
   }
 
   onMessageReceived = (message: IChatMessage): void => {
@@ -184,4 +206,11 @@ export class WebRTCConnections implements IWebRTCConnections {
   private _peers = new Map<string, IPeer>();
   private _websocket: WebSocket;
   private _ready = new PromiseDelegate<void>();
+  private _serverChanged = new Signal<IWebRTCConnections, void>(this);
+}
+
+export namespace WebRTCConnections {
+  export interface IOptions {
+    signalingURL?: string;
+  }
 }

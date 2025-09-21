@@ -1,8 +1,6 @@
-// Copyright (c) Jupyter Development Team.
-// Distributed under the terms of the Modified BSD License.
-
 import { IChatMessage } from '@jupyter/chat';
 import { Token } from '@lumino/coreutils';
+import { ISignal } from '@lumino/signaling';
 
 export interface IWebRTCConnections {
   login(name: string): void;
@@ -10,6 +8,7 @@ export interface IWebRTCConnections {
   sendMessage(message: IChatMessage): boolean[];
   onMessageReceived: (message: IChatMessage) => void;
   readonly peers: Map<string, IPeer>;
+  readonly serverChanged: ISignal<IWebRTCConnections, void>;
 }
 
 export interface IPeer {
@@ -18,5 +17,5 @@ export interface IPeer {
 }
 
 export const IWebRTCConnections = new Token<IWebRTCConnections>(
-  '@jupyter/collaboration:IRTCConnection'
+  'jupyter-webrtc-chat:WebRTCConnection'
 );

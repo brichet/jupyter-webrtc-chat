@@ -3,7 +3,6 @@
 [![Github Actions Status](https://github.com/brichet/jupyter-webRTC-chat/workflows/Build/badge.svg)](https://github.com/brichet/jupyter-webRTC-chat/actions/workflows/build.yml)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/brichet/jupyter-webRTC-chat/main?urlpath=lab)
 
-
 A JupyterLab extension providing a chat over webRTC.
 
 ## Requirements

@@ -1,0 +1,15 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "Web RTC signaling client",
+  "description": "jupyter-webrtc-chat settings.",
+  "type": "object",
+  "properties": {
+    "signalingURL": {
+      "type": "string",
+      "title": "Web RTC signaling URL",
+      "description": "The URL of the signaling server",
+      "default": "webrtc_chat"
+    }
+  },
+  "additionalProperties": false
+}
