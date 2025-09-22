@@ -25,6 +25,18 @@ To remove the extension, execute:
 pip uninstall jupyter_webrtc_chat
 ```
 
+## Running the server only
+
+Running the server only can be useful to provide a signaling server that can be used by jupyterlite, without serving the
+whole jupyter lab application.
+
+```bash
+python -m jupyter_webrtc_chat
+```
+
+All the arguments of a regular jupyter server can be provided (port, ip, ...).
+See https://jupyter-server.readthedocs.io/en/latest/other/full-config.html#other-full-config for available arguments.
+
 ## Contributing
 
 ### Development install
