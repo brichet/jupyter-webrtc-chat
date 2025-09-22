@@ -2,6 +2,7 @@ import json
 
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import url_path_join
+from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
 class RouteHandler(WebSocketHandler, JupyterHandler):
@@ -13,6 +14,19 @@ class RouteHandler(WebSocketHandler, JupyterHandler):
 
     def initialize(self):
         self.username = ''
+
+    def on_close(self):
+        self.log.warning(f"CLOSING")
+        self._users.pop(self.username)
+        for username in self._users.keys():
+            IOLoop.current().add_callback(
+                self._users[username].send,
+                {
+                    "type": "disconnect",
+                    "name": self.username
+                }
+            )
+        return super().on_close()
 
     async def on_message(self, message):
         self.log.warn(f"MESSAGE {message}")

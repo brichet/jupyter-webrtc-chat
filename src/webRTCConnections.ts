@@ -65,6 +65,9 @@ export class WebRTCConnections implements IWebRTCConnections {
               }
             });
             break;
+          case 'disconnect':
+            this.onDisconnect(data);
+            break;
           case 'offer':
             this.onOffer(data);
             break;
@@ -139,6 +142,11 @@ export class WebRTCConnections implements IWebRTCConnections {
     console.debug('ICE CANDIDATE', data);
     const connection = this._peers.get(data.name)?.connection;
     connection?.addIceCandidate(new RTCIceCandidate(data.candidate));
+  }
+
+  onDisconnect(data: any) {
+    console.debug('DISCONNECT', data);
+    this._peers.delete(data.name);
   }
 
   private _addConnection(name: string, createOffer = false) {
